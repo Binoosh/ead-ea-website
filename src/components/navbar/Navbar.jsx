@@ -12,6 +12,30 @@ export default function AppNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
+  // --- initialize user from cookies ---
+  useEffect(() => {
+    const name = Cookies.get("fullName");
+    const email = Cookies.get("email");
+    const roleData = Cookies.get("roles");
+
+    if (!name || !roleData) return setCurrentUser(null);
+
+    try {
+      const rolesParsed = JSON.parse(roleData);
+      const primaryRole = Array.isArray(rolesParsed)
+        ? rolesParsed[0]
+        : rolesParsed;
+
+      setCurrentUser({
+        name,
+        email,
+        role: primaryRole?.toLowerCase() || "",
+      });
+    } catch (e) {
+      console.error("Failed to parse role cookie:", e);
+      setCurrentUser(null);
+    }
+  }, [location.pathname]);
 
   // --- logout ---
   const handleSignOut = () => {
